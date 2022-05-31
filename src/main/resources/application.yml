@@ -1,0 +1,9 @@
+server:
+  port: 5000
+
+ibm:
+  mq:
+    queue-manager: QM1
+    channel: DEV.APP.SVRCONN
+    conn-name: localhost(1414)
+    user: app
