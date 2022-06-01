@@ -24,22 +24,31 @@ public class StubListener {
     public void onMessage(Message message) throws JMSException {
         String jmsCorrelationID = message.getJMSCorrelationID();
         String jmsMessageId = message.getJMSMessageID();
+        String requestId = message.getStringProperty("RequestID");
+
+        String body = message.getBody(String.class);
+        log.info("Тело сообщения: " + body);
+
+        log.info(message.toString());
 
         String headers = message.getStringProperty("headers");
+
+        log.info("headers: " + headers);
 
         SmsResponse smsResponse = new SmsResponse();
         smsResponse.data = "Hello from stub";
 
-        send(smsResponse, jmsCorrelationID, jmsMessageId, headers);
+        send(smsResponse, jmsCorrelationID, jmsMessageId, headers, requestId);
     }
 
-    public void send(SmsResponse response, String correlationId, String messageId, String headers) {
+    public void send(SmsResponse response, String correlationId, String messageId, String headers, String requestId) {
         String message = convertRequestToString(response);
 
         jmsTemplate.convertAndSend("DEV.QUEUE.2", message, postProcessor -> {
             postProcessor.setJMSCorrelationID(correlationId);
             postProcessor.setJMSMessageID(messageId);
             postProcessor.setStringProperty("headers", headers);
+            postProcessor.setStringProperty("RequestID", requestId);
 
             return postProcessor;
         });
